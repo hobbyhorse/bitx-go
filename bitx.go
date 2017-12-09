@@ -270,9 +270,9 @@ func (c *Client) PostMarketOrder(pair string, order_type OrderType,
 	volume float64,
 	baseAccountID, counterAccountID string) (string, error) {
 	form := make(url.Values)
-	if order_type = SELL {
+	if order_type == SELL {
 		form.Add("base_volume", fmt.Sprintf("%f", volume))
-	} else if order_type = BUY {
+	} else if order_type == BUY {
 		form.Add("counter_volume", fmt.Sprintf("%f", volume))
 	} else {
 		return "", errors.New("BitX error: Order type must be BUY or SELL")
