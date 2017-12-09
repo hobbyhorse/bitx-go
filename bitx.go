@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-const userAgent = "bitx-go/0.0.3"
+const userAgent = "bitx-go/0.0.3.1"
 
 var base = url.URL{Scheme: "https", Host: "api.mybitx.com"}
 
@@ -229,6 +229,8 @@ type OrderType string
 
 const BID = OrderType("BID")
 const ASK = OrderType("ASK")
+const BUY = OrderType("BUY")
+const SELL = OrderType("SELL")
 
 // Create a new trade order.
 // Specify zero for baseAccountID and counterAccountID to use your default
@@ -250,6 +252,42 @@ func (c *Client) PostOrder(pair string, order_type OrderType,
 
 	var r postorder
 	err := c.call("POST", "/api/1/postorder", form, &r)
+	if err != nil {
+		return "", err
+	}
+	if r.Error != "" {
+		return "", errors.New("BitX error: " + r.Error)
+	}
+
+	return r.OrderId, nil
+}
+
+
+// Create a new market trade order.
+// Specify zero for baseAccountID and counterAccountID to use your default
+// accounts.
+func (c *Client) PostMarketOrder(pair string, order_type OrderType,
+	volume float64,
+	baseAccountID, counterAccountID string) (string, error) {
+	form := make(url.Values)
+	if order_type = SELL {
+		form.Add("base_volume", fmt.Sprintf("%f", volume))
+	} else if order_type = BUY {
+		form.Add("counter_volume", fmt.Sprintf("%f", volume))
+	} else {
+		return "", errors.New("BitX error: Order type must be BUY or SELL")
+	}
+	form.Add("pair", pair)
+	form.Add("type", string(order_type))
+	if baseAccountID != "" {
+		form.Add("base_account_id", baseAccountID)
+	}
+	if counterAccountID != "" {
+		form.Add("counter_account_id", counterAccountID)
+	}
+
+	var r postorder
+	err := c.call("POST", "/api/1/marketorder", form, &r)
 	if err != nil {
 		return "", err
 	}
