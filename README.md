@@ -10,4 +10,4 @@ documentation.
 
 ## Installation
 
-    go get github.com/bitx/bitx-go
+    go get github.com/hobbyhorse/bitx-go
